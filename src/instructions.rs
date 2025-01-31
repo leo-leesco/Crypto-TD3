@@ -44,21 +44,69 @@ fn from_columns(columns: [[u32; STATE_SIDE]; STATE_SIDE]) -> [u32; STATE_SIZE] {
     state
 }
 
+fn diagonal(state: [u32; STATE_SIZE], offset: usize) -> [u32; STATE_SIDE] {
+    let mut out_col = [0u32; STATE_SIDE];
+    for ind in 0..STATE_SIDE {
+        out_col[ind] = state[(offset + ind) % STATE_SIDE + ind * STATE_SIDE];
+        #[cfg(test)]
+        eprint!("{} ", (offset + ind) % STATE_SIDE + ind * STATE_SIDE);
+    }
+    #[cfg(test)]
+    eprintln!("");
+    out_col
+}
+
+fn to_diagonals(state: [u32; STATE_SIZE]) -> [[u32; STATE_SIDE]; STATE_SIDE] {
+    let mut diagonals = [[0u32; STATE_SIDE]; STATE_SIDE];
+    for offset in 0..STATE_SIDE {
+        diagonals[offset] = diagonal(state, offset);
+    }
+    diagonals
+}
+
+fn from_diagonals(diagonals: [[u32; STATE_SIDE]; STATE_SIDE]) -> [u32; STATE_SIZE] {
+    let mut state = [0u32; STATE_SIZE];
+    for offset in 0..STATE_SIDE {
+        for ind in 0..STATE_SIDE {
+            state[(offset + ind) % STATE_SIDE + ind * STATE_SIDE] = diagonals[offset][ind];
+        }
+    }
+    state
+}
+
 fn column_round(state: [u32; STATE_SIZE]) -> [u32; STATE_SIZE] {
-    let updated = to_columns(state);
-    from_columns(updated.map(quarter_round))
+    from_columns(to_columns(state).map(quarter_round))
+}
+
+fn diagonal_round(state: [u32; STATE_SIZE]) -> [u32; STATE_SIZE] {
+    from_diagonals(to_diagonals(state).map(quarter_round))
+}
+
+fn full_round(state: [u32; STATE_SIZE]) -> [u32; STATE_SIZE] {
+    diagonal_round(column_round(state))
 }
 
 #[cfg(test)]
 mod test {
     use crate::{
-        instructions::{from_columns, to_columns},
+        instructions::{from_columns, from_diagonals, to_columns, to_diagonals},
         STATE_SIZE,
     };
 
+    const STATE: [u32; STATE_SIZE] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
     #[test]
-    fn from_to_reciprocals() {
-        let state: [u32; STATE_SIZE] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-        assert_eq!(state, from_columns(to_columns(state)));
+    fn from_to_columns() {
+        assert_eq!(STATE, from_columns(to_columns(STATE)));
+    }
+
+    #[test]
+    fn from_to_diagonals() {
+        assert_eq!(
+            STATE,
+            from_diagonals(to_diagonals(STATE)),
+            "{:?}",
+            to_diagonals(STATE)
+        );
     }
 }
