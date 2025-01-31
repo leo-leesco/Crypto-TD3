@@ -1,5 +1,6 @@
 #![allow(non_snake_case)]
 
-const ARRAY_SIZE: usize = 16;
+const STATE_SIDE: usize = 4;
+const STATE_SIZE: usize = STATE_SIDE * STATE_SIDE;
 
 mod instructions;
