@@ -3,4 +3,6 @@
 const STATE_SIDE: usize = 4;
 const STATE_SIZE: usize = STATE_SIDE * STATE_SIDE;
 
+mod block;
 mod instructions;
+pub mod stream;

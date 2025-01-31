@@ -82,7 +82,7 @@ fn diagonal_round(state: [u32; STATE_SIZE]) -> [u32; STATE_SIZE] {
     from_diagonals(to_diagonals(state).map(quarter_round))
 }
 
-fn full_round(state: [u32; STATE_SIZE]) -> [u32; STATE_SIZE] {
+pub fn full_round(state: [u32; STATE_SIZE]) -> [u32; STATE_SIZE] {
     diagonal_round(column_round(state))
 }
 
